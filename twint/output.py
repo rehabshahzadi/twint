@@ -105,6 +105,7 @@ async def checkData(tweet, location, config, conn):
             elasticsearch.Tweet(tweet, config)
 
         _output(tweet, output, config)
+        return tweets_object
 
 async def Tweets(tweets, location, config, conn, url=''):
     if (config.Profile_full or config.Location) and config.Get_replies:
@@ -115,7 +116,7 @@ async def Tweets(tweets, location, config, conn, url=''):
             if tw['data-item-id'] == url.split('?')[0].split('/')[-1]:
                 await checkData(tw, location, config, conn)
     elif config.TwitterSearch:
-            await checkData(tweets, location, config, conn)
+            return await checkData(tweets, location, config, conn)
     else:
         if int(tweets["data-user-id"]) == config.User_id:
             await checkData(tweets, location, config, conn)

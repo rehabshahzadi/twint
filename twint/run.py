@@ -114,9 +114,10 @@ class Twint:
         else:
             for tweet in self.feed:
                 self.count += 1
-                await output.Tweets(tweet, "", self.config, self.conn)
+                return await output.Tweets(tweet, "", self.config, self.conn)
 
     async def main(self):
+        tweetsObj=[]
         self.user_agent = await get.RandomUserAgent()
         #logging.info("[<] " + str(datetime.now()) + ':: run+Twint+main')
         if self.config.User_id is not None:
@@ -151,20 +152,24 @@ class Twint:
                     elif self.config.Profile:
                         await self.profile()
                     elif self.config.TwitterSearch:
-                        await self.tweets()
+                        tweets=await self.tweets()
+                        if tweets:
+                            tweetsObj=tweets
                 else:
                     break
 
                 #logging.info("[<] " + str(datetime.now()) + ':: run+Twint+main+CallingGetLimit2')
                 if get.Limit(self.config.Limit, self.count):
+                    # return tweetsObj
                     break
+            return tweetsObj
 
         if self.config.Count:
             verbose.Count(self.count, self.config)
 
 def run(config):
     #logging.info("[<] " + str(datetime.now()) + ':: run+run')
-    get_event_loop().run_until_complete(Twint(config).main())
+    return  get_event_loop().run_until_complete( Twint(config).main())
 
 def Favorites(config):
     #logging.info("[<] " + str(datetime.now()) + ':: run+Favorites')
@@ -212,6 +217,6 @@ def Search(config):
     config.TwitterSearch = True
     config.Following = False
     config.Followers = False
-    run(config)
+    return run(config)
     if config.Pandas_au:
         storage.panda._autoget("tweet")
